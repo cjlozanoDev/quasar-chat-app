@@ -17,6 +17,7 @@
 
 <script>
 import { ref, computed } from "vue";
+import { auth } from "boot/firebase";
 
 export default {
   setup() {
@@ -33,7 +34,23 @@ export default {
         return;
       }
       try {
-      } catch (error) {}
+        if (!acceder.value) {
+          // Registrar
+
+          const user = await auth.createUserWithEmailAndPassword(
+            auth.auth,
+            email.value,
+            password.value
+          );
+          console.log(user.user);
+        } else {
+          // Login
+        }
+        email.value = "";
+        password.value = "";
+      } catch (error) {
+        console.log(error);
+      }
     };
 
     return {

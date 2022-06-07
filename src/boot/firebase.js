@@ -1,8 +1,8 @@
 import { boot } from "quasar/wrappers";
 
-import firebase from "firebase/compat/app";
-import "firebase/auth";
-import "firebase/firestore";
+import { initializeApp } from "firebase/app";
+import { getDatabase } from "firebase/database";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC4m5Qz648UwhOqJwH-8oAgX8rTgLIHpDo",
@@ -14,10 +14,13 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 
-const db = firebase.db;
-const auth = firebase.auth;
+const db = getDatabase(app);
+const auth = {
+  auth: getAuth(app),
+  createUserWithEmailAndPassword,
+};
 //const marcaTiempo = firebase.firestore.FieldValue.serverTimestamp();
 
 export { db, auth };
