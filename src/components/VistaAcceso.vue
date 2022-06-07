@@ -18,6 +18,7 @@
 <script>
 import { ref, computed } from "vue";
 import { auth } from "boot/firebase";
+import { useAuth } from "@vueuse/firebase";
 
 export default {
   setup() {
@@ -27,6 +28,8 @@ export default {
     const textoRegistroLogin = computed(() =>
       acceder.value ? "Login" : "Registro"
     );
+
+    const { isAuthenticated, user } = useAuth(auth.auth);
 
     const procesarFormulario = async () => {
       if (!email.value.trim() || !password.value.trim()) {
@@ -45,6 +48,13 @@ export default {
           console.log(user.user);
         } else {
           // Login
+          console.log("voy a llamar a usario");
+          const user = await auth.signInWithEmailAndPassword(
+            auth.auth,
+            email.value,
+            password.value
+          );
+          console.log("EL usuario es", user.user);
         }
         email.value = "";
         password.value = "";
@@ -59,6 +69,8 @@ export default {
       procesarFormulario,
       textoRegistroLogin,
       acceder,
+      isAuthenticated,
+      user,
     };
   },
 };
