@@ -1,0 +1,48 @@
+<template>
+  <div class="q-px-xl">
+    <h5>Formulario de {{ textoRegistroLogin }}</h5>
+    <q-form class="q-gutter-md" @submit.prevent="procesarFormulario">
+      <q-input label="Email" v-model="email" />
+      <q-input label="Password" v-model="password" />
+      <q-btn :label="textoRegistroLogin" type="submit" color="primary" />
+      <q-btn v-if="!acceder" color="primary" outline @click="acceder = true">
+        ¿Ya tienes cuenta?
+      </q-btn>
+      <q-btn v-else color="negative" outline @click="acceder = false">
+        ¿No tienes cuenta?
+      </q-btn>
+    </q-form>
+  </div>
+</template>
+
+<script>
+import { ref, computed } from "vue";
+
+export default {
+  setup() {
+    const email = ref("");
+    const password = ref("");
+    const acceder = ref(true);
+    const textoRegistroLogin = computed(() =>
+      acceder.value ? "Login" : "Registro"
+    );
+
+    const procesarFormulario = async () => {
+      if (!email.value.trim() || !password.value.trim()) {
+        console.log("campos vacíos");
+        return;
+      }
+      try {
+      } catch (error) {}
+    };
+
+    return {
+      email,
+      password,
+      procesarFormulario,
+      textoRegistroLogin,
+      acceder,
+    };
+  },
+};
+</script>
