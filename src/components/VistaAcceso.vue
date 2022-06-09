@@ -17,8 +17,9 @@
 
 <script>
 import { ref, computed } from "vue";
-import { auth } from "boot/firebase";
+import { auth, db } from "boot/firebase";
 import { useAuth } from "@vueuse/firebase";
+import { doc, setDoc, updateDoc } from "firebase/firestore";
 
 export default {
   setup() {
@@ -45,16 +46,24 @@ export default {
             email.value,
             password.value
           );
-          console.log(user.user);
+          await setDoc(doc(db, "users", user.user.uid), {
+            email: user.user.email,
+            estado: true,
+            uid: user.user.uid,
+          });
         } else {
           // Login
-          console.log("voy a llamar a usario");
+
           const user = await auth.signInWithEmailAndPassword(
             auth.auth,
             email.value,
             password.value
           );
-          console.log("EL usuario es", user.user);
+
+          const userRef = doc(db, "users", user.user.uid);
+          await updateDoc(userRef, {
+            estado: true,
+          });
         }
         email.value = "";
         password.value = "";

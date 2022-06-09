@@ -7,7 +7,9 @@
         </q-toolbar-title>
 
         <div>
-          <q-btn color="negative" v-if="isAuthenticated"> Salir </q-btn>
+          <q-btn color="negative" v-if="isAuthenticated" @click="salir">
+            Salir
+          </q-btn>
         </div>
       </q-toolbar>
     </q-header>
@@ -20,15 +22,31 @@
 
 <script>
 import { useAuth } from "@vueuse/firebase";
-import { auth } from "boot/firebase";
+import { auth, db } from "boot/firebase";
+import { doc, updateDoc } from "firebase/firestore";
 
 export default {
   name: "MainLayout",
   setup() {
     const { isAuthenticated, user } = useAuth(auth.auth);
+
+    const salir = async () => {
+      try {
+        const userRef = doc(db, "users", user.value.uid);
+
+        await updateDoc(userRef, {
+          estado: false,
+        });
+
+        await auth.auth.signOut();
+      } catch (error) {
+        console.log(error);
+      }
+    };
     return {
       isAuthenticated,
       user,
+      salir,
     };
   },
 };

@@ -1,7 +1,8 @@
 import { boot } from "quasar/wrappers";
 
 import { initializeApp } from "firebase/app";
-import { getDatabase } from "firebase/database";
+import { getFirestore } from "firebase/firestore";
+
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -20,7 +21,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-const db = getDatabase(app);
+const db = getFirestore(app);
 const auth = {
   auth: getAuth(app),
   createUserWithEmailAndPassword,
