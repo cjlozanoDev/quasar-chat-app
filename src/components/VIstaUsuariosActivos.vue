@@ -1,5 +1,5 @@
 <template>
-  <q-page-sticky position="top" expand>
+  <q-page-sticky position="top" expand class="tabs-zindex">
     <q-tabs
       v-model="uidSeleccionado"
       inline-label
@@ -66,3 +66,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.tabs-zindex {
+  z-index: 2000;
+}
+</style>
