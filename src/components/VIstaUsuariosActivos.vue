@@ -8,7 +8,7 @@
       class="bg-primary text-white shadow-2 full-width"
     >
       <q-tab
-        v-for="user in users"
+        v-for="user in arraySinUser"
         :key="user.uid"
         :name="user.id"
         icon="account_circle"
@@ -20,8 +20,9 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { useAuth } from "@vueuse/firebase";
 import { auth, db } from "boot/firebase";
 
 export default {
@@ -29,6 +30,7 @@ export default {
   setup() {
     const uidSeleccionado = ref("");
     const users = ref([]);
+    const { user } = useAuth(auth.auth);
 
     const q = query(collection(db, "users"));
     onSnapshot(q, (snapshot) => {
@@ -36,6 +38,7 @@ export default {
         if (change.type === "added") {
           console.log("Usuario nuevo: ", change.doc.data());
           users.value.push(change.doc.data());
+          users.value = users.value.sort((a, b) => b.estado - a.estado);
         }
         if (change.type === "modified") {
           console.log("Usuario modificado: ", change.doc.data());
@@ -53,9 +56,12 @@ export default {
       });
     });
 
+    const arraySinUser = computed(() => {
+      return users.value.filter((userAux) => userAux.uid !== user.value.uid);
+    });
     return {
       uidSeleccionado,
-      users,
+      arraySinUser,
     };
   },
 };
