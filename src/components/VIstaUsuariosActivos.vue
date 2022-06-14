@@ -10,7 +10,7 @@
       <q-tab
         v-for="user in arraySinUser"
         :key="user.uid"
-        :name="user.id"
+        :name="user.uid"
         icon="account_circle"
         :label="user.email"
         :class="user.estado ? 'text-white' : 'text-grey'"
@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { ref, computed } from "vue";
+import { ref, computed, inject } from "vue";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { useAuth } from "@vueuse/firebase";
 import { auth, db } from "boot/firebase";
@@ -28,7 +28,7 @@ import { auth, db } from "boot/firebase";
 export default {
   name: "VistaUsuariosActivos",
   setup() {
-    const uidSeleccionado = ref("");
+    const uidSeleccionado = inject("uidSeleccionado");
     const users = ref([]);
     const { user } = useAuth(auth.auth);
 
