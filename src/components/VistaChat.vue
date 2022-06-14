@@ -1,9 +1,14 @@
 <template>
-  <div v-if="uidSeleccionado !== ''" class="q-mt-xl">
+  <div v-if="uidSeleccionado !== ''" class="q-mt-xl" ref="RefChat">
     <div class="q-pa-md row justify-center q-mt-xl">
       <div style="width: 100%; max-width: 600px">
-        <q-chat-message name="me" :text="['hey, how are you?']" sent />
-        <q-chat-message name="Jane" :text="['doing fine, how r you?']" />
+        <q-chat-message
+          v-for="chat in chats"
+          :key="chat.id"
+          :name="chat.user"
+          :text="[chat.texto]"
+          :sent="chat.uid === user.uid"
+        />
       </div>
     </div>
     <q-footer>
@@ -30,22 +35,64 @@
 </template>
 
 <script>
-import { ref, inject, watchEffect } from "vue";
+import { ref, inject, watch } from "vue";
 import { useAuth } from "@vueuse/firebase";
 import { auth, db } from "boot/firebase";
-import { doc, addDoc, collection } from "firebase/firestore";
+import {
+  doc,
+  addDoc,
+  collection,
+  query,
+  onSnapshot,
+  orderBy,
+} from "firebase/firestore";
 
 export default {
   setup() {
     const message = ref("");
     const uidSeleccionado = inject("uidSeleccionado");
     const { user } = useAuth(auth.auth);
+    const chats = ref([]);
+    const RefChat = ref(null);
 
-    watchEffect(() => {
-      console.log(uidSeleccionado.value);
-    });
+    let unsubscribe;
 
+    const obtenerData = (uidDelUsuarioSeleccionado) => {
+      chats.value = [];
+      const q = query(
+        collection(db, "chat", user.value.uid, uidDelUsuarioSeleccionado),
+        orderBy("fecha")
+      );
+      unsubscribe = onSnapshot(q, (snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === "added") {
+            console.log("New city: ", change.doc.data());
+            chats.value.push({ ...change.doc.data(), id: change.doc.id });
+          }
+          if (RefChat.value !== null) {
+            setTimeout(() => {
+              window.scrollTo(0, RefChat.value.scrollHeight);
+            }, 50);
+          }
+        });
+      });
+    };
+
+    watch(
+      () => uidSeleccionado.value,
+      (newUid) => {
+        if (unsubscribe) {
+          unsubscribe();
+          if (newUid) {
+            obtenerData(newUid);
+          }
+        } else {
+          obtenerData(newUid);
+        }
+      }
+    );
     const enviarMensaje = async () => {
+      if (!message.value.trim()) return;
       try {
         const objetoMensaje = {
           user: user.value.email,
@@ -74,6 +121,9 @@ export default {
       message,
       enviarMensaje,
       uidSeleccionado,
+      chats,
+      user,
+      RefChat,
     };
   },
 };
